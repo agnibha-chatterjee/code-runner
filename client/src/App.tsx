@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { Terminal } from "./components/Terminal"
+import { Editor } from "./components/Editor"
 
 function App() {
   const [connected, setConnected] = useState(false)
@@ -21,8 +22,12 @@ function App() {
   }, [])
 
   return (
-    <main>
-      <h1>Websocket Terminal</h1>
+    <main
+      style={{
+        margin: "0 20px 0 20px",
+      }}
+    >
+      <Editor />
       {connected && <Terminal socketRef={socketRef} />}
     </main>
   )

@@ -16,6 +16,7 @@ export function Terminal(props: ITerminalProps) {
     newTerminal.open(document.getElementById("terminal")!)
 
     const onDataListener = newTerminal.onData((data) => {
+      const msg = { type: "ShellCommand", data }
       socket.send(data)
     })
 

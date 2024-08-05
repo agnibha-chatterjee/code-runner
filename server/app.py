@@ -3,13 +3,15 @@ import json
 import os
 import pty
 import select
-from contextlib import asynccontextmanager
+from enum import Enum
 from subprocess import PIPE
 from typing import List
 
 from fastapi import Depends, FastAPI, WebSocket, WebSocketDisconnect
 
 app = FastAPI()
+
+INCOMING_TYPES = Enum("INCOMING_TYPES", ["ShellCommand"])
 
 
 @app.get("/")
@@ -42,8 +44,10 @@ async def websocket_endpoint(websocket: WebSocket):
                     await websocket.send_text(data.decode())
 
             try:
-                data = await asyncio.wait_for(websocket.receive_text(), timeout=0.1)
-                os.write(master, data.encode())
+                data = await asyncio.wait_for(websocket.receive_text(), timeout=0.01)
+                print(data)
+                encoded_data = data.encode()
+                os.write(master, encoded_data)
             except asyncio.TimeoutError:
                 pass
     finally:
