@@ -1,26 +1,29 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Terminal } from "./components/Terminal"
 
 function App() {
-  const socketRef = useRef<WebSocket>()
+  const [connected, setConnected] = useState(false)
+  const socketRef = useRef<WebSocket | null>(null)
 
   useEffect(() => {
-    const connection = new WebSocket("ws://127.0.0.1:8000/ws")
+    const connection = new WebSocket("ws://127.0.0.1:3000/ws")
     socketRef.current = connection
 
     connection.onopen = () => {
       console.log("Connected to the server")
+      setConnected(true)
     }
 
     connection.onclose = () => {
       console.log("Disconnected from the server")
+      setConnected(false)
     }
   }, [])
 
   return (
     <main>
       <h1>Websocket Terminal</h1>
-      <Terminal />
+      {connected && <Terminal socketRef={socketRef} />}
     </main>
   )
 }
