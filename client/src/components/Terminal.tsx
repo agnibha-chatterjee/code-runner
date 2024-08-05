@@ -1,34 +1,48 @@
 import { Terminal as Xterm } from "@xterm/xterm"
-import { useEffect } from "react"
+import { Fragment, useEffect, useRef } from "react"
 import "@xterm/xterm/css/xterm.css"
 
-interface ITerminalProps {
-  socketRef: React.MutableRefObject<WebSocket | null>
-}
+export function Terminal() {
+  const terminalConnectionRef = useRef<WebSocket | null>(null)
 
-export function Terminal(props: ITerminalProps) {
-  const { socketRef: { current: socket } = {} } = props
+  function runCode() {
+    terminalConnectionRef.current?.send("node test1.js" + "\r")
+  }
 
   useEffect(() => {
-    if (!socket) return
+    const connection = new WebSocket("ws://127.0.0.1:3000/terminal")
+    terminalConnectionRef.current = connection
+
+    connection.onopen = () => {
+      console.log("Connected to the server")
+    }
+
+    connection.onclose = () => {
+      console.log("Disconnected from the server")
+    }
 
     const newTerminal = new Xterm()
     newTerminal.open(document.getElementById("terminal")!)
 
     const onDataListener = newTerminal.onData((data) => {
-      const msg = { type: "ShellCommand", data }
-      socket.send(data)
+      connection.send(data)
     })
 
-    socket!.onmessage = (event) => {
+    connection.onmessage = (event) => {
       newTerminal.write(event.data)
     }
 
     return () => {
       newTerminal.dispose()
       onDataListener.dispose()
+      connection.close()
     }
   }, [])
 
-  return <div id="terminal"></div>
+  return (
+    <Fragment>
+      <button onClick={runCode}>Run</button>
+      <div id="terminal"></div>
+    </Fragment>
+  )
 }
