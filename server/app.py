@@ -14,6 +14,8 @@ app = FastAPI()
 
 FILE_WATCHER_RUNNING = False
 
+USR_PATH = os.getcwd() + "/playground"
+
 
 async def setup_file_watcher(websocket: WebSocket):
     global FILE_WATCHER_RUNNING
@@ -25,6 +27,23 @@ async def setup_file_watcher(websocket: WebSocket):
             return
 
     FILE_WATCHER_RUNNING = True
+
+
+def get_dir_tree(path=USR_PATH):
+    tree = {}
+
+    def build_tree(current_path, curr_tree):
+        contents = os.listdir(current_path)
+        for file in contents:
+            file_path = os.path.join(current_path, file)
+            if os.path.isdir(file_path):
+                curr_tree[file] = {}
+                build_tree(file_path, curr_tree[file])
+            else:
+                curr_tree[file] = None
+
+    build_tree(path, tree)
+    return tree
 
 
 @app.get("/")
@@ -49,8 +68,8 @@ async def websocket_endpoint(websocket: WebSocket):
         print(req)
         match req["type"]:
             case "AllFiles":
-                files = os.listdir(".")
-                await websocket.send_json({"files": files, "type": "AllFiles"})
+                dir_tree = get_dir_tree()
+                await websocket.send_json({"files": dir_tree, "type": "AllFiles"})
 
             case "FetchFile":
                 file = req["file"]
@@ -78,6 +97,8 @@ async def websocket_terminal(websocket: WebSocket):
         os.dup2(slave, 0)
         os.dup2(slave, 1)
         os.dup2(slave, 2)
+
+        os.chdir(USR_PATH)
         os.execvp("zsh", ["zsh"])
     else:
         os.close(slave)

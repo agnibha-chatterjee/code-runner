@@ -2,28 +2,17 @@ import CodeMirror from "@uiw/react-codemirror"
 import { useCallback, useEffect, useState } from "react"
 import { javascript } from "@codemirror/lang-javascript"
 import { python } from "@codemirror/lang-python"
+import { debounce } from "../utils"
 
 interface IEditorProps {
   socketRef: React.MutableRefObject<WebSocket | null>
   selectedFile: string | null
 }
 
-function debounce<F extends (...args: Parameters<F>) => ReturnType<F>>(
-  func: F,
-  waitFor: number
-): (...args: Parameters<F>) => void {
-  let timeout: ReturnType<typeof setTimeout>
-
-  return (...args: Parameters<F>): void => {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => func(...args), waitFor)
-  }
-}
-
 export function Editor(props: IEditorProps) {
   const { socketRef, selectedFile } = props
 
-  const [value, setValue] = useState("console.log('hello world!');")
+  const [value, setValue] = useState("")
 
   const debouncedSave = debounce(function (file: string, updatedValue: string) {
     const msg = {
@@ -32,7 +21,6 @@ export function Editor(props: IEditorProps) {
       content: updatedValue,
     }
 
-    console.log("Sending message", msg)
     socketRef.current?.send(JSON.stringify(msg))
   }, 1250)
 
@@ -54,7 +42,6 @@ export function Editor(props: IEditorProps) {
       const data = JSON.parse(event.data)
 
       if (data.type === "FetchFile") {
-        console.log(data.content)
         setValue(data.content)
       }
     }
@@ -71,7 +58,7 @@ export function Editor(props: IEditorProps) {
       theme="dark"
       value={value}
       height="600px"
-      extensions={[javascript({ jsx: true })]}
+      extensions={[javascript({ jsx: true, typescript: true }), python()]}
       onChange={onChange}
     />
   )

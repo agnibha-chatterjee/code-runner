@@ -4,7 +4,7 @@ import { Editor } from "./components/Editor"
 
 function App() {
   const [connected, setConnected] = useState(false)
-  const [files, setFiles] = useState<string[]>([])
+  const [files, setFiles] = useState<Record<string, any>>({})
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
   const socketRef = useRef<WebSocket | null>(null)
 
@@ -45,7 +45,7 @@ function App() {
     <main>
       <section style={{ display: "flex", flexDirection: "row" }}>
         <div style={{ flexGrow: 0.5 }}>
-          {files.map((file) => (
+          {Object.keys(files).map((file) => (
             <div key={file} style={{ margin: "5px 0 5px 0" }}>
               <button
                 onClick={() => setSelectedFile(file)}
