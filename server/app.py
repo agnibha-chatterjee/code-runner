@@ -3,11 +3,9 @@ import json
 import os
 import pty
 import select
-from enum import Enum
 from subprocess import PIPE
-from typing import List
 
-from fastapi import Depends, FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket
 from watchfiles import awatch
 
 app = FastAPI()
