@@ -2,12 +2,34 @@ import { Terminal as Xterm } from "@xterm/xterm"
 import { Fragment, useEffect, useRef } from "react"
 import "@xterm/xterm/css/xterm.css"
 
-export function Terminal() {
+interface ITerminalProps {
+  selectedFile: string | null
+}
+
+export function Terminal(props: ITerminalProps) {
   const terminalConnectionRef = useRef<WebSocket | null>(null)
 
   function runCode() {
+    if (!props.selectedFile) return
+
+    const extension = props.selectedFile.split(".").pop()
+
     terminalConnectionRef.current?.send("clear" + "\r")
-    terminalConnectionRef.current?.send("node test1.js" + "\r")
+
+    switch (extension) {
+      case "js":
+        terminalConnectionRef.current?.send("node " + props.selectedFile + "\r")
+        break
+      case "py":
+        terminalConnectionRef.current?.send(
+          "python3 " + props.selectedFile + "\r"
+        )
+        break
+      default:
+        terminalConnectionRef.current?.send(
+          "echo 'Unsupported file type'" + "\r"
+        )
+    }
   }
 
   useEffect(() => {

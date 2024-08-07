@@ -61,27 +61,27 @@ def list_files():
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
 
-    # await setup_file_watcher(websocket)
-
     while True:
         req = await websocket.receive_json()
         print(req)
         match req["type"]:
             case "AllFiles":
                 dir_tree = get_dir_tree()
-                await websocket.send_json({"files": dir_tree, "type": "AllFiles"})
+                resp = {"files": dir_tree, "type": "AllFiles"}
+                await websocket.send_json(resp)
 
             case "FetchFile":
-                file = req["file"]
-                file_path = USR_PATH + f"/{file}"
+                selected_file = req["file"]
+                file_path = USR_PATH + f"/{selected_file}"
                 with open(file_path, "r") as f:
                     content = f.read()
                 await websocket.send_json({"content": content, "type": "FetchFile"})
 
             case "SaveFile":
-                file = req["file"]
+                selected_file = req["file"]
+                file_path = USR_PATH + f"/{selected_file}"
                 content = req["content"]
-                with open(file, "w") as f:
+                with open(file_path, "w") as f:
                     f.write(content)
                 await websocket.send_json({"type": "SaveFile"})
 

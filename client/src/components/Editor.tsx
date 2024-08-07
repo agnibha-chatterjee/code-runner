@@ -3,16 +3,36 @@ import { useCallback, useEffect, useState } from "react"
 import { javascript } from "@codemirror/lang-javascript"
 import { python } from "@codemirror/lang-python"
 import { debounce } from "../utils"
+import { useWS } from "../hooks/use-ws"
 
 interface IEditorProps {
-  socketRef: React.MutableRefObject<WebSocket | null>
   selectedFile: string | null
 }
 
 export function Editor(props: IEditorProps) {
-  const { socketRef, selectedFile } = props
-
+  const { selectedFile } = props
   const [value, setValue] = useState("")
+
+  const { sendJSONMessage } = useWS("ws://127.0.0.1:3000/ws", {
+    parseResponseAsJSON: true,
+    onMessage: (data: Record<string, any>) => {
+      console.log(data)
+      if (data.type === "FetchFile") {
+        setValue(data.content)
+      }
+    },
+  })
+
+  useEffect(() => {
+    if (!selectedFile) return
+
+    const msg = {
+      type: "FetchFile",
+      file: selectedFile,
+    }
+
+    sendJSONMessage(msg)
+  }, [selectedFile])
 
   const debouncedSave = debounce(function (file: string, updatedValue: string) {
     const msg = {
@@ -21,7 +41,7 @@ export function Editor(props: IEditorProps) {
       content: updatedValue,
     }
 
-    socketRef.current?.send(JSON.stringify(msg))
+    sendJSONMessage(msg)
   }, 1250)
 
   const onChange = useCallback(
@@ -31,27 +51,6 @@ export function Editor(props: IEditorProps) {
     },
     [selectedFile]
   )
-
-  const fetchFile = function () {
-    if (!selectedFile) return
-    socketRef.current?.send(
-      JSON.stringify({ type: "FetchFile", file: selectedFile })
-    )
-
-    socketRef.current!.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-
-      if (data.type === "FetchFile") {
-        setValue(data.content)
-      }
-    }
-  }
-
-  useEffect(() => {
-    if (!selectedFile) return
-
-    fetchFile()
-  }, [selectedFile])
 
   return (
     <CodeMirror
