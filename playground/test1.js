@@ -1,20 +1,6 @@
-class Person {
-  constructor(name, age) {
-    this.name = name
-    this.age = age
-  }
+arr = [1, 2, 3]
 
-  getName() {
-    return this.name
-  }
+newArr = arr.map((a) => a * 2)
 
-  getAge() {
-    return this.age
-  }
-}
+console.log(newArr)
 
-const p1 = new Person("agni", 21)
-console.log(p1)
-console.log(p1.getName())
-console.log(p1.getAge())
-console.log('Agnibha Chatterjee')

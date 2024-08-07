@@ -2,6 +2,7 @@ import { Terminal as Xterm } from "@xterm/xterm"
 import { Fragment, useEffect, useRef } from "react"
 import "@xterm/xterm/css/xterm.css"
 import { useWS } from "../hooks/use-ws"
+import { useHotkeys } from "react-hotkeys-hook"
 
 interface ITerminalProps {
   selectedFile: string | null
@@ -9,6 +10,11 @@ interface ITerminalProps {
 
 export function Terminal(props: ITerminalProps) {
   const xTermRef = useRef<Xterm | null>(null)
+
+  useHotkeys("shift+enter", () => {
+    console.log("Running code")
+    runCode()
+  })
 
   const { sendMessage } = useWS("ws://127.0.0.1:3000/terminal", {
     onMessage: (data) => {

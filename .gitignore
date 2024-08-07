@@ -1,5 +1,7 @@
 client/node_modules
-playground/
+playground/*
+client/dist
+
 # Logs
 logs
 *.log

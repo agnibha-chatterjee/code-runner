@@ -2,11 +2,26 @@ import { useEffect, useState } from "react"
 import CodeMirror from "@uiw/react-codemirror"
 import { javascript } from "@codemirror/lang-javascript"
 import { python } from "@codemirror/lang-python"
+import { autocompletion, CompletionContext } from "@codemirror/autocomplete"
 import { debounce } from "../utils"
 import { useWS } from "../hooks/use-ws"
 
 interface IEditorProps {
   selectedFile: string | null
+}
+
+function myCompletions(context: CompletionContext) {
+  const word = context.matchBefore(/\w*/)
+  if (!word) return null
+  if (word.from == word.to && !context.explicit) return null
+  return {
+    from: word.from,
+    options: [
+      { label: "match", type: "keyword" },
+      { label: "hello", type: "variable", info: "(World)" },
+      { label: "magic", type: "text", apply: "⠁⭒*.✩.*⭒⠁", detail: "macro" },
+    ],
+  }
 }
 
 export function Editor(props: IEditorProps) {
@@ -53,7 +68,11 @@ export function Editor(props: IEditorProps) {
       theme="dark"
       value={value}
       height="600px"
-      extensions={[javascript({ jsx: true, typescript: true }), python()]}
+      extensions={[
+        javascript({ jsx: true, typescript: true }),
+        python(),
+        autocompletion({ override: [myCompletions] }),
+      ]}
       onChange={onChange}
     />
   )
