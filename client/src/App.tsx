@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Terminal } from "./components/Terminal"
 import { Editor } from "./components/Editor"
+import { FileExplorer } from "./components/FileExplorer"
 import { useWS } from "./hooks/use-ws"
 
 function App() {
@@ -20,25 +21,9 @@ function App() {
   return (
     <main>
       <section style={{ display: "flex", flexDirection: "row" }}>
-        <div style={{ flexGrow: 0.5 }}>
-          {Object.keys(files).map((file) => (
-            <div key={file} style={{ margin: "5px 0 5px 0" }}>
-              <button
-                onClick={() => setSelectedFile(file)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "white",
-                  cursor: "pointer",
-                }}
-              >
-                {file}
-              </button>
-            </div>
-          ))}
-        </div>
+        <FileExplorer files={files} setSelectedFile={setSelectedFile} />
         <section
-          style={{ display: "flex", flexDirection: "column", flexGrow: 2 }}
+          style={{ display: "flex", flexDirection: "column", flexGrow: 1.75 }}
         >
           <Editor selectedFile={selectedFile} />
           <Terminal selectedFile={selectedFile} />
