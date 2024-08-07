@@ -1,5 +1,5 @@
 interface IFileExplorerProps {
-  files: Record<string, string>
+  files: Record<string, any>
   setSelectedFile: (file: string) => void
 }
 

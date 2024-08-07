@@ -4,5 +4,13 @@ clientdev:
 serverdev:
 	fastapi dev server/app.py --port 3000
 
+clientprod:
+	cd client && pnpm preview
+
+serverprod:
+	fastapi run server/app.py --port 3000
+
 dev: serverdev clientdev 
+
+prod: serverprod clientprod
 	
