@@ -6,6 +6,7 @@ export function Terminal() {
   const terminalConnectionRef = useRef<WebSocket | null>(null)
 
   function runCode() {
+    terminalConnectionRef.current?.send("clear" + "\r")
     terminalConnectionRef.current?.send("node test1.js" + "\r")
   }
 

@@ -73,7 +73,8 @@ async def websocket_endpoint(websocket: WebSocket):
 
             case "FetchFile":
                 file = req["file"]
-                with open(file, "r") as f:
+                file_path = USR_PATH + f"/{file}"
+                with open(file_path, "r") as f:
                     content = f.read()
                 await websocket.send_json({"content": content, "type": "FetchFile"})
 
