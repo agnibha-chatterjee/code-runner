@@ -1,5 +1,5 @@
+import { useEffect, useState } from "react"
 import CodeMirror from "@uiw/react-codemirror"
-import { useCallback, useEffect, useState } from "react"
 import { javascript } from "@codemirror/lang-javascript"
 import { python } from "@codemirror/lang-python"
 import { debounce } from "../utils"
@@ -14,11 +14,10 @@ export function Editor(props: IEditorProps) {
   const [value, setValue] = useState("")
 
   const { sendJSONMessage } = useWS("ws://127.0.0.1:3000/ws", {
-    parseResponseAsJSON: true,
-    onMessage: (data: Record<string, any>) => {
-      console.log(data)
-      if (data.type === "FetchFile") {
-        setValue(data.content)
+    onMessage: (data: string) => {
+      const parsedData = JSON.parse(data)
+      if (parsedData.type === "FetchFile") {
+        setValue(parsedData.content)
       }
     },
   })
@@ -44,13 +43,10 @@ export function Editor(props: IEditorProps) {
     sendJSONMessage(msg)
   }, 1250)
 
-  const onChange = useCallback(
-    (val: string) => {
-      setValue(val)
-      debouncedSave(selectedFile!, val)
-    },
-    [selectedFile]
-  )
+  const onChange = (val: string) => {
+    setValue(val)
+    debouncedSave(selectedFile!, val)
+  }
 
   return (
     <CodeMirror

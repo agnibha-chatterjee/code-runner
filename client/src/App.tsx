@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Terminal } from "./components/Terminal"
 import { Editor } from "./components/Editor"
 import { useWS } from "./hooks/use-ws"
@@ -8,12 +8,11 @@ function App() {
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
 
   useWS("ws://127.0.0.1:3000/ws", {
-    parseResponseAsJSON: true,
     initialMessage: { type: "AllFiles" },
-    onMessage: (data: Record<string, any>) => {
-      console.log(data)
-      if (data.type === "AllFiles") {
-        setFiles(data.files)
+    onMessage: (data: string) => {
+      const parsedData = JSON.parse(data)
+      if (parsedData.type === "AllFiles") {
+        setFiles(parsedData.files)
       }
     },
   })
