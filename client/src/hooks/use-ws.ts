@@ -62,7 +62,6 @@ export function useWS(url: string, config?: IUseWSConfig) {
     if (!connected) return
 
     webSocketRef.current!.onmessage = (event) => {
-      console.log(`[WS] Received message from endpoint -> ${endpoint}`)
       if (onMessage) {
         onMessage(parseResponseAsJSON ? JSON.parse(event.data) : event.data)
       }
